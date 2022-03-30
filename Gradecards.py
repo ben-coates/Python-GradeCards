@@ -19,11 +19,10 @@ def visualizeData(frame, text):
     progressReport = text.get('1.0','end')
 
     # Set student variable to the list returned from the students function
-    students = parseReport(progressReport)
-
-    studentList = open('students.txt', 'w')
-    updateStudentList(students, studentList)
-    studentList.close()
+    globals()['students'] = parseReport(progressReport)
+    # studentList = open('students.txt', 'w')
+    # updateStudentList(students, studentList)
+    # studentList.close()
     # name = Label(frame, text = "Name")
     # name.grid(row = 0, column = 0)
     # id = Label(frame, text = "ID")
@@ -51,7 +50,17 @@ def visualizeData(frame, text):
     #     effort = Label(frame, text = s.effort)
     #     effort.grid(row = index + 1, column = 5)
 
-def saveReport(root, students):
+def saveReport(root, students, text):
+    # progressReport = filedialog.askopenfilename(title = "Select Progress Report", defaultextension=".txt", filetypes=(("Text File", "*.txt"),))
+    # for index, line in enumerate(open(progressReport).readlines()):
+    #     text.insert(float(index), line)
+
+    # # Grab the text from the report excluding the first line until the end
+    # progressReport = text.get('1.0','end')
+
+    # # Set student variable to the list returned from the students function
+    # students = parseReport(progressReport)
+
     # Prompt user to save file and request a save destination
     messagebox.showinfo("Save Report", "Please select or create a file to save the gradecard report.") 
     gradecardsReport = filedialog.asksaveasfilename(title = "Select Location to Save Gradecards", defaultextension=".xlsx", filetypes=(("Excel File", "*.xlsx"),))
@@ -95,7 +104,7 @@ def main():
     button.pack(padx=10, pady=10)
     button = Button(root, text="Process Data", command=lambda:visualizeData(dataFrame, text))
     button.pack(padx=10, pady=10)
-    button = Button(root, text="Run Report", command=lambda:saveReport(root, students))
+    button = Button(root, text="Run Report", command=lambda:saveReport(root, students, text))
     button.pack(padx=10, pady=10)
 
     root.mainloop()

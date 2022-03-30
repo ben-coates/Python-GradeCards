@@ -2,9 +2,9 @@
 # Functions for exporting data to excel for the deans report
 
 # Import openpyxl styles formatting
-from openpyxl import Workbook
-import openpyxl
+from openpyxl import Workbook, worksheet, cell
 from openpyxl.styles import Font, Alignment, PatternFill
+from student import Student
 
 # Function Name: headerCell()
 # Description: Function for creating a header cell in the deans report
@@ -14,7 +14,7 @@ from openpyxl.styles import Font, Alignment, PatternFill
 #   text    string
 #   width   int
 #   color   hex color value 
-def headerCell(sheet: object, cell: object, text: str, width: int, color: str):
+def headerCell(sheet: worksheet, cell: cell, text: str, width: int, color: str):
     sheet[cell] = text
     sheet[cell].alignment = Alignment(horizontal='center', vertical='center')
     sheet[cell].fill = PatternFill("solid", start_color=color)
@@ -24,12 +24,10 @@ def headerCell(sheet: object, cell: object, text: str, width: int, color: str):
 # Function Name: bodyRow()
 # Description: Function for creating a body cell in the deans report
 # Parameters:
-#   sheet   openpyxl sheet object
-#   cell    openpyxl cell object
-#   text    string
-#   width   int
-#   color   hex color value 
-def bodyRow(sheet: object, row: int, student: object):
+#   sheet       openpyxl sheet object
+#   row         int
+#   student     Student object 
+def bodyRow(sheet: worksheet, row: int, student: Student):
     sheet.row_dimensions[row].height = 12
 
     row = str(row)
@@ -46,9 +44,9 @@ def bodyRow(sheet: object, row: int, student: object):
 # Function Name: runDeansReport
 # Desctiption: Function for creating the deans report in the excel file
 # Parameters:
-#   report      Python List of student objects
+#   report      Python List of Student objects
 #   workbook    openpyxl workbook object
-def runDeansReport(report: list, workbook: object):
+def runDeansReport(report: list[Student], workbook: Workbook):
     # Set the sort order of eligibility
     eligibility_order = ['Honor Roll', 'Eligible', 'Limited', 'Ineligible']
     

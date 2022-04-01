@@ -7,8 +7,6 @@ from openpyxl import Workbook
 from deansreport import runDeansReport
 from formatGradecards import runGradeCards
 from parseReport import parseReport
-from studentList import updateStudentList
-from exportToDB import exportData
 
 # Global variable
 students = []

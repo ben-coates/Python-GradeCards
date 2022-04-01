@@ -1,6 +1,7 @@
 import re
 import io
 from student import Student
+from db import dbConnection
 
 def parseReport(progressReport):
     studentList = []
@@ -56,5 +57,6 @@ def parseReport(progressReport):
             i.get('classes')
         )
         studentList.append(newStudent)
+        print(i)
 
     return studentList

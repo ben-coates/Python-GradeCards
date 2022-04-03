@@ -1,113 +1,99 @@
 # Python Library file imports
-from tkinter import messagebox, filedialog
-from tkinter import *
+import os
+import sys
+from PyQt6.QtWidgets import QApplication, QMessageBox, QTextEdit, QGroupBox, QHBoxLayout, QVBoxLayout, QPushButton, QFileDialog
+from PyQt6.QtGui import QIcon
 from openpyxl import Workbook
 
 # Program file imports
 from deansreport import runDeansReport
 from formatGradecards import runGradeCards
-from parseReport import parseReport
-from studentList import updateStudentList
+from progressReport import ProgressReport
 
-# Global variable
-students = []
+# Get File and add text to the text box
+def getFile(textbox: QTextEdit):
 
-# parse the data and visualize it in editable fields
-def visualizeData(frame, text):
+    # Request the location of the file to load
+    filename = QFileDialog.getOpenFileName(caption = "Open Report", filter = "Text files (*.txt)")
 
+    # As long as the file name is not blank
+    if (filename[0] != ''):
+        try:
+            file = open(filename[0])
+            for line in file:
+                textbox.insertPlainText(str(line))
+        except:
+            exeptionMessage = QMessageBox()
+            exeptionMessage.setWindowTitle("Error")
+            exeptionMessage.setText("File was unable to be opened. Try again. \n If the issue persists contact the program administrator.")
+            exeptionMessage.exec()
+
+def saveReport(textbox: QTextEdit):
     # Grab the text from the report excluding the first line until the end
-    progressReport = text.get('1.0','end')
+    textProgressReport = textbox.toPlainText()
 
-    # Set student variable to the list returned from the students function
-    globals()['students'] = parseReport(progressReport)
-    # studentList = open('students.txt', 'w')
-    # updateStudentList(students, studentList)
-    # studentList.close()
-    # name = Label(frame, text = "Name")
-    # name.grid(row = 0, column = 0)
-    # id = Label(frame, text = "ID")
-    # id.grid(row = 0, column = 1)
-    # gradelevel = Label(frame, text = "Grade")
-    # gradelevel.grid(row = 0, column = 2)
-    # gpa = Label(frame, text = "GPA")
-    # gpa.grid(row = 0, column = 3)
-    # eligibility = Label(frame, text = "Eligibility")
-    # eligibility.grid(row = 0, column = 4)
-    # effort = Label(frame, text = "Effort")
-    # effort.grid(row = 0, column = 5)
-
-    # for index, s in enumerate(students):
-    #     name = Label(frame, text = s.name)
-    #     name.grid(row = index + 1, column = 0, sticky=W)
-    #     id = Label(frame, text = s.id)
-    #     id.grid(row = index + 1, column = 1)
-    #     gradelevel = Label(frame, text = s.gradelevel)
-    #     gradelevel.grid(row = index + 1, column = 2)
-    #     gpa = Label(frame, text = s.gpa)
-    #     gpa.grid(row = index + 1, column = 3)
-    #     eligibility = Label(frame, text = s.eligibility)
-    #     eligibility.grid(row = index + 1, column = 4)
-    #     effort = Label(frame, text = s.effort)
-    #     effort.grid(row = index + 1, column = 5)
-
-def saveReport(root, students, text):
-    # progressReport = filedialog.askopenfilename(title = "Select Progress Report", defaultextension=".txt", filetypes=(("Text File", "*.txt"),))
-    # for index, line in enumerate(open(progressReport).readlines()):
-    #     text.insert(float(index), line)
-
-    # # Grab the text from the report excluding the first line until the end
-    # progressReport = text.get('1.0','end')
-
-    # # Set student variable to the list returned from the students function
-    # students = parseReport(progressReport)
+    # Create a new report from the report class, set students equal to the report data.
+    newProgessReport = ProgressReport(textProgressReport)
 
     # Prompt user to save file and request a save destination
-    messagebox.showinfo("Save Report", "Please select or create a file to save the gradecard report.") 
-    gradecardsReport = filedialog.asksaveasfilename(title = "Select Location to Save Gradecards", defaultextension=".xlsx", filetypes=(("Excel File", "*.xlsx"),))
+    excelFile = QFileDialog.getSaveFileName(caption = "Save Report", filter = "Excel files (*.xlsx)")
     
     # Create a workbook, run the deans report, run the gradecards, save the file
     workbook = Workbook()
-    runDeansReport(students, workbook)
-    runGradeCards(students, workbook)
-    workbook.save(filename=gradecardsReport)
+    runDeansReport(newProgessReport.data, workbook)
+    runGradeCards(newProgessReport.data, workbook)
+    workbook.save(filename=excelFile[0])
 
     # Report to user that the report has been saved
-    messagebox.showinfo("Report Save", "Report has been saved to " + gradecardsReport) 
-    root.destroy()
-
-def processTextFile(text):
-    progressReport = filedialog.askopenfilename(title = "Select Progress Report", defaultextension=".txt", filetypes=(("Text File", "*.txt"),))
-    for index, line in enumerate(open(progressReport).readlines()):
-        text.insert(float(index), line)
+    savedMessage = QMessageBox()
+    savedMessage.setWindowTitle("Report Saved")
+    savedMessage.setText("Report has been saved to " + excelFile[0])
+    savedMessage.exec()
 
 def main():
-    # Create the Tk() root element and give it a title, starting dimensons and icon
-    root = Tk()
-    root.title('Oakdale Gradecards')
-    # root.geometry(f'{screen_width - 200}x{screen_height - 200}+100+50')
-    # root.iconbitmap('gradecards.ico')
+    # Create the application
+    app = QApplication([], )
 
-    text = Text(root, height=20)
-    text.pack(padx=30, pady=30)
+    if getattr(sys, 'frozen', False):
+        application_path = sys._MEIPASS
+    elif __file__:
+        application_path = os.path.dirname(__file__)
 
-    # dataScroll.config(command=text.yview)
+    icon = QIcon(os.path.join(application_path, "gradecards.ico"))
 
-    listbox = Listbox(root)
-    l1 = Label(listbox, text = "Hello")
-    listbox.insert(1, l1)
-    listbox.pack()
+    # Create the window GroupBox for the application components, Set the title of the groupbox Widget, Set the title of the overall window
+    window = QGroupBox()
+    window.setTitle("Progress Report")
+    window.setWindowTitle("Gradecards")
+    window.setWindowIcon(icon)
+    window.resize(500, 500)
+    
+    # Create a text box and set the default text value
+    textbox = QTextEdit()
+    textbox.setPlaceholderText("Please load the progress report from a file or copy and paste it here.")
+    
+    # Create a button for triggering the file load
+    fromFileButton = QPushButton("Load from File")
+    fromFileButton.clicked.connect(lambda: getFile(textbox))
 
-    dataFrame = Frame(root)
-    dataFrame.pack()
+    # Create a button for triggering the save report
+    runReportButton = QPushButton("Run Report")
+    runReportButton.clicked.connect(lambda: saveReport(textbox))
 
-    button = Button(root, text="Load Data from Text File", command=lambda:processTextFile(text))
-    button.pack(padx=10, pady=10)
-    button = Button(root, text="Process Data", command=lambda:visualizeData(dataFrame, text))
-    button.pack(padx=10, pady=10)
-    button = Button(root, text="Run Report", command=lambda:saveReport(root, students, text))
-    button.pack(padx=10, pady=10)
+    hbox = QHBoxLayout()
+    hbox.addWidget(fromFileButton)
+    hbox.addWidget(runReportButton)
 
-    root.mainloop()
+    # Create the box layout and add the widgets to the layout
+    vbox = QVBoxLayout()
+    vbox.addWidget(textbox)
+    vbox.addLayout(hbox)
+    
+    # Set the QGroupBox layout and show the QGroupBox
+    window.setLayout(vbox)
+    window.show()
+
+    app.exec()
 
 if __name__ == '__main__':
     main()

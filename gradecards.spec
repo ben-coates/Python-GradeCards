@@ -4,10 +4,10 @@
 block_cipher = None
 
 
-a = Analysis(['Gradecards.py'],
+a = Analysis(['gradecards.py'],
              pathex=[],
              binaries=[],
-             datas=[],
+             datas=[('gradecards.ico', '.')],
              hiddenimports=[],
              hookspath=[],
              hooksconfig={},
